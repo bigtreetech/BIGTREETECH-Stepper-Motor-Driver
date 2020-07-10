@@ -1,0 +1,2 @@
+# BIGTREETECH-TMC5160-V1.0
+The TMC5160 contains the complete intelligence which is required to drive a motor. Receiving target positions the TMC5160 manages motor movement. Based on TRINAMICs unique features stallGuard2, coolStep, dcStep, spreadCycle, and stealthChop, the TMC5160 optimizes drive performance. It trades off velocity vs. motor torque, optimizes energy efficiency, smoothness of the drive, and noiselessness.；2-phase stepper motors up to 20A coil current (external MOSFETs) Motion Controller with sixPoint™ ramp
