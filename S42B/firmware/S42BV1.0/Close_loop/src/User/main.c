@@ -367,7 +367,9 @@ uint8_t enter_num=0;
 int16_t Motor_speed =0;
 int16_t wap1=0;
 int16_t wap2=0;
-uint8_t Motor_speed_flag=0; 
+int16_t Motor_speed_count=0; 
+uint8_t start_measu_V_flag=0;
+uint8_t measure_once_flag=0; 
 
 uint8_t Currents=0;                 //
 uint8_t Currents_Set=0;
@@ -1066,7 +1068,7 @@ static void MX_TIM1_Init(void)
   TIM_InitStruct.RepetitionCounter = 0;
   LL_TIM_Init(TIM1, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM1);
-  LL_TIM_ConfigETR(TIM1, LL_TIM_ETR_POLARITY_NONINVERTED, LL_TIM_ETR_PRESCALER_DIV1, LL_TIM_ETR_FILTER_FDIV8_N6);
+  LL_TIM_ConfigETR(TIM1, LL_TIM_ETR_POLARITY_NONINVERTED, LL_TIM_ETR_PRESCALER_DIV1, LL_TIM_ETR_FILTER_FDIV4_N8);
   LL_TIM_SetClockSource(TIM1, LL_TIM_CLOCKSOURCE_EXT_MODE2);
   LL_TIM_SetTriggerOutput(TIM1, LL_TIM_TRGO_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM1);

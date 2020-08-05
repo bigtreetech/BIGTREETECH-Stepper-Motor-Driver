@@ -224,7 +224,9 @@ extern uint8_t Calibration_flag;      //
 extern int16_t Motor_speed ;
 extern int16_t wap1;
 extern int16_t wap2;
-extern uint8_t Motor_speed_flag;
+extern int16_t Motor_speed_count;
+extern uint8_t start_measu_V_flag;
+extern uint8_t measure_once_flag;
 
 extern volatile uint8_t flash_store_flag;
 extern uint16_t table1[14];                    //

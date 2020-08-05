@@ -5,26 +5,26 @@
 
 void Oled_display(void)
 {
-/*******************************************************************************/
+/*********************menu Scanf **********************************************************/
     if(Menu_update_flag == 1){
         Menu_update_flag =0;
 //                OLED_Clear();                   //
-        switch(Menu_Num){//界面切换
-            case 0:                             //Setting menu 
-                    switch(Menu_Num_item){      //
+        switch(Menu_Num){//
+            case 0:                             //set menu 
+                    switch(Menu_Num_item){      //menu select 
                         case 0:OLED_ShowString(0,0,"->");
                             OLED_ShowString(0,16,"  ");
                         break;
                         case 1:OLED_ShowString(0,0,"  ");
                             OLED_ShowString(0,16,"->");
                         break ;
-                        default:OLED_ShowString(0,0,"->");break ;//
+                        default:OLED_ShowString(0,0,"->");break ;
                     }
-                    if(Calibration_flag!=0xAA){                     //
+                    if((Calibration_flag>>8)!=0xAA){                     
                         OLED_ShowString(16,0,"Calibration");
                         OLED_ShowString(16,16,"Exit");
                     }
-                    else if(Second_Menu==1){                                           //
+                    else if(Second_Menu==1){                                           
                             switch(Menu_Num_item){
                                 case 2: OLED_ShowString(16,0," Calibrate");
                                         OLED_ShowString(16,16," Motor mA ");
@@ -90,7 +90,7 @@ void Oled_display(void)
                         }
                     else if(Second_Menu == 2){
                         switch(Menu_Num2_item){
-                                case 0: OLED_ShowString(16,0,"0   ");//Currents
+                                case 0: OLED_ShowString(16,0,"0   ");//
                                         OLED_ShowString(16,16,"100");
                                         OLED_ShowString(16,32,"200");
                                         OLED_ShowString(16,48,"300");
@@ -298,7 +298,7 @@ void Oled_display(void)
                             default :break ;
                             }
                     }
-                    else if(Second_Menu == 3){                      //Gear
+                    else if(Second_Menu == 3){                      //
                         switch(Menu_Num3_item){
                             case 0: Microstep_Set=32;                 //
                                     OLED_ShowString(16,0,"2 ");      
@@ -334,10 +334,10 @@ void Oled_display(void)
                             default :break ;
                         }
                     }
-                    else if(Second_Menu == 4){                              //enable
+                    else if(Second_Menu == 4){                              //
                         switch(Menu_Num4_item){
-                            case 0: //这里要理清逻辑，使能信号已主板的使能信号为准
-//                                    if( enter2_once_flag==1){             //
+                            case 0: //
+//                                    if( enter2_once_flag==1){             //1enmode==0 &&
  //                                       enter2_once_flag =0;
  //                                       enter1_once_flag=1;
 //                                        if(enmode!=0)//1
@@ -350,7 +350,7 @@ void Oled_display(void)
                                 break;
                             case 1: 
 //                                    if( enter1_once_flag==1 ){                         
-//                                                             
+//                                                              //1enmode==1 &&
 //                                        enter1_once_flag=0;
 //                                        enter2_once_flag=1;
 //                                        if(ENIN == 0)
@@ -364,7 +364,7 @@ void Oled_display(void)
                             default :break ;
                         }
                     }
-                    else if(Second_Menu == 5){                              //dir
+                    else if(Second_Menu == 5){                              //
                         switch(Menu_Num5_item){
                             case 0: if(dir2_once_flag ==1 ){
                                         dir2_once_flag=0;
@@ -374,7 +374,7 @@ void Oled_display(void)
                                     OLED_ShowString(16,0,"Hight CW ");
                                     OLED_ShowString(16,16,"Hight CCW");
                                 break;
-                            case 1: if(dir1_once_flag == 1){//
+                            case 1: if(dir1_once_flag == 1){
                                         dir1_once_flag=0;
                                         dir2_once_flag=1;
                                         Dir_Enable =0x22;
@@ -397,7 +397,7 @@ void Oled_display(void)
 //                                    OLED_ShowString(16,16,"Loop Open ");
 //                                break;
 //                            case 1: 
-////                                if(close_loop1_flag == 1){//初始默认是
+////                                if(close_loop1_flag == 1){//
 ////                                        close_loop1_flag=0;
 ////                                        close_loop2_flag=1;
 //                                        Dir_Enable =0x44;
@@ -408,7 +408,7 @@ void Oled_display(void)
 //                            default :break ;
 //                        }
 //                    }
-                    /***********************P、I、D ********************************/
+                    /*********************** ********************************/
                     
             break;
             case 1:OLED_ShowString(0,2,"Simp:  0000 RPM");//
@@ -424,7 +424,7 @@ void Motor_data_dis(void)
 {
     uint8_t temp[17]={0};
     //int32_t deg_temp=0;
-     uint32_t e_temp=0;
+    static int32_t e_temp=0;
     static uint16_t e_a=0,e_b=0;
     
     if(Data_update_flag ==1 && Menu_Num==1){
@@ -470,35 +470,15 @@ void Motor_data_dis(void)
             e_temp=-yw;
         }
         e_temp=e_temp*360*10/16384; //
-        if(e_temp>99999){
-            
-            temp[13]=29;//M
-            temp[14]=49;//a
-            temp[15]=72;//x
-            temp[16]=-16;
-            temp[17]=-16;
-            temp[11]=-16;
-            
-        }else{
         e_a =e_temp/10;                    //
-            if(e_a>9999){
-                temp[13]=29;//M
-                temp[14]=49;//a
-                temp[15]=72;//x
-                temp[16]=-16;
-                temp[17]=-16;
-                temp[11]=-16;
-            }else{
-                e_b =e_temp%10;                    //
-                temp[13]=e_a/1000;
-                temp[14]=e_a%1000/100;
-                temp[15]=e_a%100/10;
-                temp[16]=e_a%10;
-                temp[17]=-2;
-                temp[11]=e_b%10;
-            }
-        }
-/**********显示*****************************************************/ 
+        e_b =e_temp%10;                    //
+        temp[13]=e_a/1000;
+        temp[14]=e_a%1000/100;
+        temp[15]=e_a%100/10;
+        temp[16]=e_a%10;
+//        temp[8]='.';
+        temp[11]=e_b%10;
+/**********display*****************************************************/ 
         OLED_ShowChar( 48, 2, temp[8], 16, 1);
         OLED_ShowChar( 56, 2, '0'+temp[0], 16, 1);
         OLED_ShowChar( 64, 2, '0'+temp[1], 16, 1);
@@ -518,7 +498,7 @@ void Motor_data_dis(void)
         OLED_ShowChar( 64, 42, '0'+temp[14], 16, 1);
         OLED_ShowChar( 72, 42, '0'+temp[15], 16, 1);
         OLED_ShowChar( 80, 42, '0'+temp[16], 16, 1);
-        OLED_ShowChar( 88, 42, '0'+temp[17], 16, 1);
+//        OLED_ShowChar( 88, 42, temp[8], 16, 1);
         OLED_ShowChar( 96, 42, '0'+temp[11], 16, 1);
     }
 }

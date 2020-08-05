@@ -95,64 +95,81 @@ void TIM6_IRQHandler(void)
 		r=s_sum+stepangle*s;//
 	    s_1=s;
 		
-        if(y-y_1>8192) 
-	      wrap_count--;      
-        else if(y-y_1<-8192) 
+        if(y-y_1>8192){ 
+	      wrap_count--;  
+          start_measu_V_flag=1;  
+        }
+        else if(y-y_1<-8192) {
 	      wrap_count++; 
-        yw=y+16384*wrap_count;//            
-	    e=r-yw;//
-        if(e>1638)//
+            start_measu_V_flag=1;
+        }
+        else measure_once_flag =0;
+        yw=y+16384*wrap_count;//           
+	    e=r-yw;//误差值
+        if(e>1638){//
           e=1638;
-        else if(e<-1638)
+          LED_H;  
+        }
+        else if(e<-1638){
           e=-1638;
+          LED_H;  
+        }else {
+            LED_L;
+        }
         iterm+=ki*e/32;//
-		if(iterm>UMAXSUM)//
-	      iterm=UMAXSUM;
-        else if(iterm<-UMAXSUM) 
-		  iterm=-UMAXSUM; 
-    
+		#if 1
+                if(iterm>UMAXSUM)//
+                  iterm=UMAXSUM;
+                else if(iterm<-UMAXSUM) 
+                  iterm=-UMAXSUM; 
+        #else 
+                if(iterm>(Currents*128))//积分饱和限制
+                  iterm = Currents*128;
+                else if(iterm<-(Currents*128)) 
+                  iterm = -(Currents*128); 
+        #endif
            
         dterm=LPFA*dterm/128-LPFB*kd*(yw-yw_1)/8;//
-        u=(kp*e+iterm+dterm)/128;//
+        u=(kp*e+iterm+dterm)/128;//PID
 	    
-		advance=(yw-yw_1)*1.5f;//
+		advance=(yw-yw_1)*2;//前馈角计算，1.5改为2可以提高些转速，如果电机容易跑丢改为1.2
         y_1=y;  
         yw_1=yw;
 	
 		if(u>0)            
         {
-		  if(advance>68)//
-		    advance=68;
-          else if(advance<0)
-			advance=0; 		  
+//		  if(advance>68)//
+//		    advance=68;
+//          else if(advance<0)
+//			advance=0; 		  
 		  y+=(82+advance);//
 		}
-        else if(u<0)
-        {
-		  if(advance<-68)
-		    advance=-68; 
-		  else if(advance>0)
-			advance=0; 
+    else if(u<0)
+    {
+//		  if(advance<-68)
+//		    advance=-68; 
+//		  else if(advance>0)
+//			advance=0; 
 		  y-=(82-advance);
 		  u=-u;
 		}
         //
         #if 1
         if(u>Currents){
-            u=Currents;//
-            LED_H;
+            u=Currents;//电流矢量最大值限制
+            //LED_H;
         }
         #else 
         if(u>UMAXCL)     
         {
-		  u=UMAXCL;//
+		  u=UMAXCL;//电流矢量最大值限制
 		  LED_H;
 		}
         #endif
-        else
-          LED_L;
+//        else
+//          LED_L;
         Output(y,u);    
-      }          
+      }           
       else 
 	  {		
 		s=LL_TIM_GetCounter(TIM1);
@@ -179,19 +196,26 @@ void TIM6_IRQHandler(void)
 		r_1=r;
 	  }
      
-      Data_update_Count++;
-      if(Data_update_Count>=5000){       //250ms
-          Data_update_Count-=5000;
-          Motor_speed_flag++;
-          if(Motor_speed_flag>=2){
-            Motor_speed_flag=0;
-              
-              wap1=wap2;
-              wap2=wrap_count;
-//              Motor_speed = wap2-wap1;//
-          }
-        Data_update_flag=1;           //
-      }
+      Motor_speed_count++;
+        if(start_measu_V_flag==1){
+            Data_update_Count++;
+            if(Data_update_Count>=10000){       //
+                Data_update_Count=0;
+                wap1=wap2;
+                wap2=wrap_count;
+                start_measu_V_flag=0;           //
+                measure_once_flag =1;           //
+                
+            }
+        }
+        if(Motor_speed_count>=2000){
+            Motor_speed_count-=2000;
+            Data_update_flag=1;           //
+            
+            if(measure_once_flag == 0)    //  
+            start_measu_V_flag=1;
+            if(wap1== wap2) start_measu_V_flag=0; 
+        }
     }
   }
 }
