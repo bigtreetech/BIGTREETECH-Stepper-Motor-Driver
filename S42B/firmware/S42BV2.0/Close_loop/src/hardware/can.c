@@ -1,9 +1,5 @@
 #include "can.h"
 
-
-
-
-
 uint8_t CAN1_Mode_Init(uint8_t tsjw,uint8_t tbs2,uint8_t tbs1,uint16_t brp,uint8_t mode)
 {
 
